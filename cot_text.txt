@@ -1,0 +1,116 @@
+A Appendix
+A.1 Secret channel generation
+The group will be able to establish a pairwise private and authentic channel by
+following the Elliptic Curve Die Hellman [4] scheme. The domain parameters
+(that is,p, a, b, G, n, h) of the ECDH scheme will be pre-established by the ver-
+iedrmware running on the individual member’s device. Suppose Alice wants
+to establish a shared key with Bob, but the only channel available for them may
+be eavesdropped by a third party. Also, each party must have a key pair suit-
+able for elliptic curve cryptography, consisting of a private key d (a randomly
+selected integer in the interval [1, n−1]) and a public key represented by a point
+Q (whereQ=d·G, that is, the result of adding G to itself d times). Let Alice’s
+key pair bed A, QA and Bob’s key pair bed B , QB . Each party must know the
+other party’s public key prior to the execution of the protocol. This will be
+enabled by the pre-established shared root Xpubs during the provisioning of
+individual X1 Wallet during production.
+Alice computes pointx k, yk) =d A ·Q B . Bob computes pointx k, yk) =d B ·
+QA. The shared secret isx k (the x coordinate of the point). Most standardized
+protocols based on ECDH derive a symmetric key fromx k using some hash-
+based key derivation function.
+The shared secret calculated by both parties is equal, becaused A ·Q B =
+dA ·d B ·G=d B ·d A ·G=d B ·Q A.
+A.2 Polynomial coecients
+A polynomial of degree t will be represented by t+1 number of coecients where
+the coecient of the highest degree term is non-zero. Coecients of the poly-
+nomial are derived as the BIP-32-derived private keys. A derivation path (eg:
+master/sub-master’/purpose’/coin-type’/account’/change/address-index) shall
+be used as the derivation, followed by each hardware wallet owned by the party.
+A.3 Oblivious Transfer (OT)
+A.3.1 Base OT
+For a single base OT, Alice has two inputsm 0 andm 1 and Bob has an input
+bitcand Bob receivesm c from Alice without learning about the other message.
+We do this using a basic Die-Hellman exchange.
+Alice and Bob agree upon a curve point G and a prime number p. All calcula-
+tions are to take place under this prime p.
+Alice generates a random scalar a, point multiplies it with G and sends it to
+Bob as point A
+A=a.G
+Bob generates a random scalar b, point multiplies it with G, adds the point A
+10only if the bit c is 1, and sends it back to Alice as point B
+if c = 0
+B=b.G
+if c = 1
+B= (b.G) +A
+Alice prepares two keys for encryption,k 0 andk 1
+k0 : Alice point multiplies a with point B. The abscissa of this point is k0.
+k0 = (a.B) x
+k1 : Alice subtracts point A from point B and then point multiplies a with B.
+The abscissa of this point isk 1.
+k1 = (a.(B−A)) x
+Alice encryptsm 0 withk 0 andm 1 withk 1 and sends them to Bob ase 0ande1
+respectively.
+Bob generates a decryption keyk c by point multiplying b with A and taking
+the abscissa.
+kc = (b.A)x
+Bob decryptse c, where c is the input bit, withk c. This is the input messages
+mc
+A.3.2 Correlated OT (COT)
+This part adds a correlation D betweenm 0 andm 1. In our casem 1 would be
+m0 +D
+m1 =m 0 +D
+This means that Bob’sm c ism 0 ifc= 0 orm 0 +Difc= 1 ergo
+mc =m 0 +c∗D
+A.3.3 Implementation
+Now we use the above correlated OT to multiply two terms and get their re-
+spective additive shares. Note that we are going to assume that all calculations
+occur under the previously agreed upon p.
+Alice’s multiplicative term = x
+Bob’s multiplicative term = y
+Alice’s additive share = U
+Bob’s additive share = V
+11Mathematically,
+x∗y=U+V
+Since one OT involves one bit, and say numbers x and y are k bit long, we would
+require kOT s
+The process for every OT is going to be the same as the standard Die-
+Hellman exchange but with the following changes -
+Fori th OT
+m0 is a random scalarU i
+The correlation betweenm 0 andm 1 is going to be x
+m0 =U i
+m1 =U i +x
+From Bob’s side the chosen bit c is going to be thei th bit of y
+c=y i
+Subsequently, as noted above
+mc =U i +y i ∗x
+To calculate the additive share U, we calculate the negative weighted sum
+ofU i with powers of 2:
+U=−
+k
+i=1
+(2i ∗U i)
+To calculate the additive share V, we calculate the weighted sum ofi th mc value
+with powers of 2:
+V=
+k
+i=1
+(2i ∗m ci)
+Upon expanding we can see this is nothing but
+V=
+k
+i=1
+(2i ∗(U i +y i ∗x))
+V=
+k
+i=1
+(2i ∗U i) +x∗
+k
+i=1
+(2i ∗y i)
+V=−U+x∗
+k
+i=1
+(2i ∗y i)
+V=−U+x∗y
+Thus additive shares for Alice and Bob are obtained.
+12

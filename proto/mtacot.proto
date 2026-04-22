@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package mtacot;
+
+message CoTRequest {
+    repeated bytes A = 1; // 256 points, each compressed (33 bytes)
+}
+
+message CoTResponse {
+    repeated bytes B = 1; // 256 points, each compressed (33 bytes)
+}
+
+message OTExtension {
+    repeated bytes e0 = 1; // 256 scalars, each 32 bytes
+    repeated bytes e1 = 2; // 256 scalars, each 32 bytes
+}
